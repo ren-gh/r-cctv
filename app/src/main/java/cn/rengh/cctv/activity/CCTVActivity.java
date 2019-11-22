@@ -51,7 +51,7 @@ public class CCTVActivity extends AppCompatActivity implements View.OnClickListe
      * Views
      */
     private FocusKeepRecyclerView recyclerView;
-    private RelativeLayout videoParant;
+    private RelativeLayout videoParent;
     private VideoView videoView;
     private TextView videoTile;
     private TextView tvClock;
@@ -109,18 +109,18 @@ public class CCTVActivity extends AppCompatActivity implements View.OnClickListe
         channelId = preferenceUtils.getInt("channelId", 0);
 
         recyclerView = findViewById(R.id.cctv_recyclerview);
-        videoParant = findViewById(R.id.cctv_videoview_parant);
+        videoParent = findViewById(R.id.cctv_videoview_parent);
         videoView = findViewById(R.id.cctv_videoview);
         videoTile = findViewById(R.id.cctv_title);
         tvClock = findViewById(R.id.cctv_clock);
 
-        videoParant.setOnFocusChangeListener((view, b) -> {
+        videoParent.setOnFocusChangeListener((view, b) -> {
             if (!b) {
                 smoothScrollToPosition(false);
             }
         });
-        videoParant.setOnClickListener(this);
-        videoParant.setVisibility(View.GONE);
+        videoParent.setOnClickListener(this);
+        videoParent.setVisibility(View.GONE);
 
         videoView.setOnPreparedListener(mediaPlayer -> {
             LogUtils.i(TAG, "setOnPreparedListener()");
@@ -139,7 +139,7 @@ public class CCTVActivity extends AppCompatActivity implements View.OnClickListe
         cctvAdapter.setOnClickListener(pos -> {
             recyclerView.setCurrentFocusPosition(pos);
             if (channelId == pos && !isVideoFullScreen()) {
-                videoParant.performClick();
+                videoParent.performClick();
                 return;
             }
             channelId = pos;
@@ -220,19 +220,19 @@ public class CCTVActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.cctv_videoview_parant: {
+            case R.id.cctv_videoview_parent: {
                 if (isVideoFullScreen()) {
-                    videoParant.setPadding(videoParantPadding, videoParantPadding, videoParantPadding, videoParantPadding);
-                    videoParant.setLayoutParams(videoParantParam);
+                    videoParent.setPadding(videoParantPadding, videoParantPadding, videoParantPadding, videoParantPadding);
+                    videoParent.setLayoutParams(videoParantParam);
                     videoParantParam = null;
                     videoParantPadding = -1;
                     recyclerView.setVisibility(View.VISIBLE);
                     smoothScrollToPosition(false);
                 } else {
-                    videoParantParam = (RelativeLayout.LayoutParams) videoParant.getLayoutParams();
-                    videoParantPadding = videoParant.getPaddingTop();
-                    videoParant.setPadding(0, 0, 0, 0);
-                    videoParant.setLayoutParams(new RelativeLayout.LayoutParams(point.x, point.y));
+                    videoParantParam = (RelativeLayout.LayoutParams) videoParent.getLayoutParams();
+                    videoParantPadding = videoParent.getPaddingTop();
+                    videoParent.setPadding(0, 0, 0, 0);
+                    videoParent.setLayoutParams(new RelativeLayout.LayoutParams(point.x, point.y));
                     recyclerView.clearFocus();
                     recyclerView.setVisibility(View.GONE);
                 }
@@ -247,7 +247,7 @@ public class CCTVActivity extends AppCompatActivity implements View.OnClickListe
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (KeyEvent.KEYCODE_BACK == keyCode) {
             if (videoParantPadding != -1 && videoParantParam != null) {
-                videoParant.performClick();
+                videoParent.performClick();
                 return true;
             }
             if (doubleClickBackToFinish()) {
@@ -412,8 +412,8 @@ public class CCTVActivity extends AppCompatActivity implements View.OnClickListe
             return;
         }
         preferenceUtils.putInt("channelId", channelId);
-        if (videoParant.getVisibility() != View.VISIBLE) {
-            videoParant.setVisibility(View.VISIBLE);
+        if (videoParent.getVisibility() != View.VISIBLE) {
+            videoParent.setVisibility(View.VISIBLE);
         }
         videoTile.setText("正在播放：" + playerItem.getNumber() + ". " + playerItem.getName());
         videoView.setVideoPath(Uri.parse(playerItem.getPath()));
@@ -444,7 +444,6 @@ public class CCTVActivity extends AppCompatActivity implements View.OnClickListe
             CCTVActivity activity = weakReference.get();
             if (null == activity) {
                 LogUtils.i("MyHandler", "activity is null.");
-                return;
             }
         }
     }

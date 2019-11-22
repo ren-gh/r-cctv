@@ -34,7 +34,7 @@
         android:textStyle="bold" />
 
     <RelativeLayout
-        android:id="@+id/cctv_videoview_parant"
+        android:id="@+id/cctv_videoview_parent"
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_250"
         android:layout_below="@id/cctv_title"

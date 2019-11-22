@@ -41,8 +41,8 @@ class MainActivity : AppCompatActivity() {
         val appInfo = AppInfo(this)
         weakHandler = MyHandler(this)
 
-        tvName = findViewById(R.id.tv_name) as TextView
-        tvName?.setText(appInfo.appName + appInfo.versionName)
+        tvName = findViewById(R.id.tv_name)
+        tvName?.text = appInfo.appName + appInfo.versionName
 
         val observable = Observable
             .timer(this.SHOW_TIME, TimeUnit.SECONDS)
@@ -51,11 +51,6 @@ class MainActivity : AppCompatActivity() {
 
         val consumer = Consumer<Long> {
             startActivity(Intent(this, CCTVActivity::class.java))
-            finish()
-            overridePendingTransition(
-                com.r.library.common.R.anim.slide_in_right,
-                com.r.library.common.R.anim.slide_out_center
-            )
         }
 
         disposable = observable.subscribe(consumer)
