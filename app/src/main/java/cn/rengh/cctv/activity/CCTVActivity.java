@@ -345,23 +345,10 @@ public class CCTVActivity extends AppCompatActivity implements View.OnClickListe
         loadDisposable = Observable
                 .create((ObservableOnSubscribe<Integer>) emitter -> {
                     String text;
-                    try {
-                        OKHTTPHelper.HttpResponse httpResponse = OKHTTPHelper.getDefault().request("http://ivi.bupt.edu.cn/");
-                        if (null != httpResponse && httpResponse.isSuccess()) {
-                            text = httpResponse.getResponse();
-                            getItems(text);
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    if (list.size() == 0) {
-                        InputStream in = FileUtils.getAssetsFileInputStream(context, "live_list.html");
-                        text = FileUtils.getContent(in);
-                        getItems(text);
-                        LogUtils.i(TAG, "Get data from local.");
-                    } else {
-                        LogUtils.i(TAG, "Get data from network.");
-                    }
+                    InputStream in = FileUtils.getAssetsFileInputStream(context, "live_list.html");
+                    text = FileUtils.getContent(in);
+                    getItems(text);
+                    LogUtils.i(TAG, "Get data from local.");
                     emitter.onNext(0);
                     emitter.onComplete();
                 })
