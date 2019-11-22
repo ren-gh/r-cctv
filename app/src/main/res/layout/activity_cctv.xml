@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/cctv_bg"
+    android:clipChildren="false"
+    android:clipToPadding="false">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/black50" />
+
+    <cn.rengh.cctv.view.FocusKeepRecyclerView
+        android:id="@+id/cctv_recyclerview"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="@dimen/dp_8"
+        android:background="@color/black15"
+        android:clipToPadding="false"
+        android:paddingTop="@dimen/dp_6"
+        android:paddingBottom="@dimen/dp_6" />
+
+    <TextView
+        android:id="@+id/cctv_title"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/dp_20"
+        android:layout_marginLeft="@dimen/dp_20"
+        android:layout_marginTop="@dimen/dp_12"
+        android:layout_toEndOf="@id/cctv_recyclerview"
+        android:layout_toRightOf="@id/cctv_recyclerview"
+        android:textColor="@color/colorWhite"
+        android:textSize="@dimen/dp_14"
+        android:textStyle="bold" />
+
+    <RelativeLayout
+        android:id="@+id/cctv_videoview_parant"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_250"
+        android:layout_below="@id/cctv_title"
+        android:layout_marginLeft="@dimen/dp_20"
+        android:layout_marginTop="@dimen/dp_6"
+        android:layout_marginRight="@dimen/dp_20"
+        android:layout_toRightOf="@id/cctv_recyclerview"
+        android:background="@drawable/view_bg"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="@dimen/dp_1">
+
+        <com.r.library.common.player2.VideoView
+            android:id="@+id/cctv_videoview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/cctv_clock"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/dp_20"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="@dimen/dp_12"
+        android:layout_marginRight="@dimen/dp_12"
+        android:textColor="@color/colorWhite"
+        android:textSize="@dimen/dp_14"
+        android:textStyle="bold" />
+
+</RelativeLayout>

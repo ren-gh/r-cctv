@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="EclipseCodeFormatterProjectSettings">
+    <option name="projectSpecificProfile">
+      <ProjectSpecificProfile>
+        <option name="formatter" value="ECLIPSE" />
+        <option name="pathToConfigFileJava" value="$PROJECT_DIR$/../../../../eui.xml" />
+        <option name="selectedJavaProfile" value="EUI" />
+      </ProjectSpecificProfile>
+    </option>
+    <option name="selectedGlobalProfile">
+      <Settings>
+        <option name="formatter" value="ECLIPSE" />
+        <option name="id" value="1565435355963" />
+        <option name="name" value="EUI" />
+        <option name="pathToConfigFileJava" value="$PROJECT_DIR$/../../../../eui.xml" />
+        <option name="selectedJavaProfile" value="EUI" />
+      </Settings>
+    </option>
+  </component>
+</project>

@@ -1,3 +1,6 @@
+# Key
+.keystore/
+
 # Built application files
 *.apk
 *.ap_
