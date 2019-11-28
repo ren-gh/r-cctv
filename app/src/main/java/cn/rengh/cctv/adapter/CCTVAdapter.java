@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.r.library.common.player.PlayerItem;
 import com.r.library.common.util.UIUtils;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import cn.rengh.cctv.R;
 import cn.rengh.cctv.utils.ColorsUtils;
@@ -24,7 +24,7 @@ import cn.rengh.cctv.utils.ColorsUtils;
 public class CCTVAdapter extends RecyclerView.Adapter implements RecyclerView.ChildDrawingOrderCallback {
     private Context context;
     private OnClickListener clickListener;
-    private ArrayList<PlayerItem> list;
+    private List<PlayerItem> list;
     private ViewGroup viewGroup;
 
     public CCTVAdapter(Context context) {
@@ -32,7 +32,7 @@ public class CCTVAdapter extends RecyclerView.Adapter implements RecyclerView.Ch
         this.context = context;
     }
 
-    public void setList(ArrayList<PlayerItem> list) {
+    public void setList(List<PlayerItem> list) {
         this.list = list;
     }
 

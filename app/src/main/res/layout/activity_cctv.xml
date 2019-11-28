@@ -36,7 +36,7 @@
     <RelativeLayout
         android:id="@+id/cctv_videoview_parent"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_250"
+        android:layout_height="@dimen/dp_240"
         android:layout_below="@id/cctv_title"
         android:layout_marginLeft="@dimen/dp_20"
         android:layout_marginTop="@dimen/dp_6"
@@ -50,7 +50,7 @@
         <com.r.library.common.player2.VideoView
             android:id="@+id/cctv_videoview"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="match_parent" />
     </RelativeLayout>
 
     <TextView
@@ -64,4 +64,10 @@
         android:textSize="@dimen/dp_14"
         android:textStyle="bold" />
 
+    <ProgressBar
+        android:id="@+id/pb_load_data"
+        style="?android:attr/progressBarStyleInverse"
+        android:layout_width="@dimen/dp_40"
+        android:layout_height="@dimen/dp_40"
+        android:layout_centerInParent="true" />
 </RelativeLayout>

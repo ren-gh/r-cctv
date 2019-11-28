@@ -18,7 +18,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.r.library.common.net.OKHTTPHelper;
 import com.r.library.common.player.PlayerItem;
 import com.r.library.common.player2.VideoView;
 import com.r.library.common.util.FileUtils;
@@ -30,9 +29,15 @@ import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import butterknife.OnFocusChange;
 import cn.rengh.cctv.adapter.CCTVAdapter;
 import cn.rengh.cctv.R;
 import cn.rengh.cctv.view.FocusKeepRecyclerView;
@@ -42,7 +47,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
-public class CCTVActivity extends AppCompatActivity implements View.OnClickListener {
+public class CCTVActivity extends AppCompatActivity {
     private final String TAG = CCTVActivity.class.getSimpleName();
     private Context context;
     private MyHandler weakHandler;
@@ -50,18 +55,23 @@ public class CCTVActivity extends AppCompatActivity implements View.OnClickListe
     /*
      * Views
      */
-    private FocusKeepRecyclerView recyclerView;
-    private RelativeLayout videoParent;
-    private VideoView videoView;
-    private TextView videoTile;
-    private TextView tvClock;
+    @BindView(R.id.cctv_recyclerview)
+    FocusKeepRecyclerView recyclerView;
+    @BindView(R.id.cctv_videoview_parent)
+    RelativeLayout videoParent;
+    @BindView(R.id.cctv_videoview)
+    VideoView videoView;
+    @BindView(R.id.cctv_title)
+    TextView videoTile;
+    @BindView(R.id.cctv_clock)
+    TextView tvClock;
 
     /*
      * RecyclerView 相关
      */
     private LinearLayoutManager layoutManager;
     private Disposable loadDisposable;
-    private ArrayList<PlayerItem> list;
+    private CopyOnWriteArrayList<PlayerItem> list;
     private CCTVAdapter cctvAdapter;
     private PlayerItem playerItem;
 
@@ -98,58 +108,16 @@ public class CCTVActivity extends AppCompatActivity implements View.OnClickListe
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         UIUtils.setFullStateBar(this, true);
         setContentView(R.layout.activity_cctv);
-
         LogUtils.i(TAG, "onCreate()");
+        ButterKnife.bind(this);
 
         context = this;
         weakHandler = new MyHandler(this);
         point = new Point();
         preferenceUtils = new PreferenceUtils(context, "history");
-
         channelId = preferenceUtils.getInt("channelId", 0);
 
-        recyclerView = findViewById(R.id.cctv_recyclerview);
-        videoParent = findViewById(R.id.cctv_videoview_parent);
-        videoView = findViewById(R.id.cctv_videoview);
-        videoTile = findViewById(R.id.cctv_title);
-        tvClock = findViewById(R.id.cctv_clock);
-
-        videoParent.setOnFocusChangeListener((view, b) -> {
-            if (!b) {
-                smoothScrollToPosition(false);
-            }
-        });
-        videoParent.setOnClickListener(this);
-        videoParent.setVisibility(View.GONE);
-
-        videoView.setOnPreparedListener(mediaPlayer -> {
-            LogUtils.i(TAG, "setOnPreparedListener()");
-        });
-        videoView.setOnCompletionListener(mediaPlayer -> {
-            LogUtils.i(TAG, "setOnCompletionListener()");
-            videoTile.setText("播放结束：" + playerItem.getName());
-        });
-        videoView.setOnErrorListener((mediaPlayer, i, i1) -> {
-            LogUtils.i(TAG, "setOnErrorListener()");
-            videoTile.setText("播放出错：" + playerItem.getName());
-            return false;
-        });
-
-        cctvAdapter = new CCTVAdapter(this);
-        cctvAdapter.setOnClickListener(pos -> {
-            recyclerView.setCurrentFocusPosition(pos);
-            if (channelId == pos && !isVideoFullScreen()) {
-                videoParent.performClick();
-                return;
-            }
-            channelId = pos;
-            play();
-        });
-
-        layoutManager = new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false);
-        // recyclerView.addItemDecoration(new LinearItemDecoration(context, LinearLayoutManager.VERTICAL));
-        recyclerView.setChildDrawingOrderCallback(cctvAdapter);
-        recyclerView.setLayoutManager(layoutManager);
+        initViews();
     }
 
     @Override
@@ -208,39 +176,8 @@ public class CCTVActivity extends AppCompatActivity implements View.OnClickListe
         cctvAdapter.clear();
         cctvAdapter = null;
 
-        if (weakHandler.hasCallbacks(onChannelIdChanged)) {
-            weakHandler.removeCallbacks(onChannelIdChanged);
-        }
-        if (weakHandler.hasCallbacks(onBackKeyClicked)) {
-            weakHandler.removeCallbacks(onBackKeyClicked);
-        }
+        weakHandler.removeCallbacksAndMessages(null);
         weakHandler = null;
-    }
-
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.cctv_videoview_parent: {
-                if (isVideoFullScreen()) {
-                    videoParent.setPadding(videoParantPadding, videoParantPadding, videoParantPadding, videoParantPadding);
-                    videoParent.setLayoutParams(videoParantParam);
-                    videoParantParam = null;
-                    videoParantPadding = -1;
-                    recyclerView.setVisibility(View.VISIBLE);
-                    smoothScrollToPosition(false);
-                } else {
-                    videoParantParam = (RelativeLayout.LayoutParams) videoParent.getLayoutParams();
-                    videoParantPadding = videoParent.getPaddingTop();
-                    videoParent.setPadding(0, 0, 0, 0);
-                    videoParent.setLayoutParams(new RelativeLayout.LayoutParams(point.x, point.y));
-                    recyclerView.clearFocus();
-                    recyclerView.setVisibility(View.GONE);
-                }
-            }
-                break;
-            default:
-                break;
-        }
     }
 
     @Override
@@ -281,6 +218,65 @@ public class CCTVActivity extends AppCompatActivity implements View.OnClickListe
             return true;
         }
         return super.onKeyDown(keyCode, event);
+    }
+
+    private void initViews() {
+        videoParent.setVisibility(View.GONE);
+
+        videoView.setOnPreparedListener(mediaPlayer -> {
+            LogUtils.i(TAG, "setOnPreparedListener()");
+        });
+        videoView.setOnCompletionListener(mediaPlayer -> {
+            LogUtils.i(TAG, "setOnCompletionListener()");
+            videoTile.setText("播放结束：" + playerItem.getName());
+        });
+        videoView.setOnErrorListener((mediaPlayer, i, i1) -> {
+            LogUtils.i(TAG, "setOnErrorListener()");
+            videoTile.setText("播放出错：" + playerItem.getName());
+            return false;
+        });
+
+        cctvAdapter = new CCTVAdapter(this);
+        cctvAdapter.setOnClickListener(pos -> {
+            recyclerView.setCurrentFocusPosition(pos);
+            if (channelId == pos && !isVideoFullScreen()) {
+                videoParent.performClick();
+                return;
+            }
+            channelId = pos;
+            play();
+        });
+
+        layoutManager = new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false);
+        // recyclerView.addItemDecoration(new LinearItemDecoration(context, LinearLayoutManager.VERTICAL));
+        recyclerView.setChildDrawingOrderCallback(cctvAdapter);
+        recyclerView.setLayoutManager(layoutManager);
+    }
+
+    @OnFocusChange(R.id.cctv_videoview_parent)
+    void onVideoViewFocusChanged(boolean b) {
+        if (!b) {
+            smoothScrollToPosition(false);
+        }
+    }
+
+    @OnClick(R.id.cctv_videoview_parent)
+    void onVideoViewClicked() {
+        if (isVideoFullScreen()) {
+            videoParent.setPadding(videoParantPadding, videoParantPadding, videoParantPadding, videoParantPadding);
+            videoParent.setLayoutParams(videoParantParam);
+            videoParantParam = null;
+            videoParantPadding = -1;
+            recyclerView.setVisibility(View.VISIBLE);
+            smoothScrollToPosition(false);
+        } else {
+            videoParantParam = (RelativeLayout.LayoutParams) videoParent.getLayoutParams();
+            videoParantPadding = videoParent.getPaddingTop();
+            videoParent.setPadding(0, 0, 0, 0);
+            videoParent.setLayoutParams(new RelativeLayout.LayoutParams(point.x, point.y));
+            recyclerView.clearFocus();
+            recyclerView.setVisibility(View.GONE);
+        }
     }
 
     private void smoothScrollToPosition(boolean smooth) {
@@ -342,13 +338,33 @@ public class CCTVActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void loadData() {
+        findViewById(R.id.pb_load_data).setVisibility(View.VISIBLE);
         loadDisposable = Observable
                 .create((ObservableOnSubscribe<Integer>) emitter -> {
+                    if (null != list) {
+                        list.clear();
+                    } else {
+                        list = new CopyOnWriteArrayList<>();
+                    }
                     String text;
-                    InputStream in = FileUtils.getAssetsFileInputStream(context, "live_list.html");
-                    text = FileUtils.getContent(in);
-                    getItems(text);
-                    LogUtils.i(TAG, "Get data from local.");
+                    // targetVersion 为 28 及以上时，禁止直接访问 http 服务，需要使用 https。
+                    // try {
+                    // OKHTTPHelper.HttpResponse httpResponse = OKHTTPHelper.getDefault().request("http://ivi.bupt.edu.cn/");
+                    // if (null != httpResponse && httpResponse.isSuccess()) {
+                    // text = httpResponse.getResponse();
+                    // getItems(text);
+                    // }
+                    // } catch (Exception e) {
+                    // e.printStackTrace();
+                    // }
+                    if (list.size() == 0) {
+                        InputStream in = FileUtils.getAssetsFileInputStream(context, "live_list.html");
+                        text = FileUtils.getContent(in);
+                        getItems(text);
+                        LogUtils.i(TAG, "Get data from local.");
+                    } else {
+                        LogUtils.i(TAG, "Get data from network.");
+                    }
                     emitter.onNext(0);
                     emitter.onComplete();
                 })
@@ -356,7 +372,7 @@ public class CCTVActivity extends AppCompatActivity implements View.OnClickListe
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(integer -> {
                     if (list.size() == 0) {
-                        ArrayList<PlayerItem> errList = new ArrayList<>();
+                        List<PlayerItem> errList = new ArrayList<>();
                         PlayerItem item = new PlayerItem();
                         item.setName("加载失败！");
                         errList.add(item);
@@ -364,6 +380,7 @@ public class CCTVActivity extends AppCompatActivity implements View.OnClickListe
                     } else {
                         cctvAdapter.setList(list);
                     }
+                    findViewById(R.id.pb_load_data).setVisibility(View.GONE);
                     recyclerView.setAdapter(cctvAdapter);
                     smoothScrollToPosition(false);
                     play();
@@ -371,11 +388,6 @@ public class CCTVActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void getItems(String text) {
-        if (null != list) {
-            list.clear();
-        } else {
-            list = new ArrayList<>();
-        }
         if (TextUtils.isEmpty(text)) {
             return;
         }
@@ -423,7 +435,7 @@ public class CCTVActivity extends AppCompatActivity implements View.OnClickListe
     private boolean doubleClickBackToFinish() {
         if (!onBackKeyPressed) {
             onBackKeyPressed = true;
-            weakHandler.postDelayed(onBackKeyClicked, 600);
+            weakHandler.postDelayed(onBackKeyClicked, 1000);
             return true;
         } else {
             onBackKeyPressed = false;
