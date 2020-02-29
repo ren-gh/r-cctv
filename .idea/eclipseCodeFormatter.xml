@@ -4,7 +4,7 @@
     <option name="projectSpecificProfile">
       <ProjectSpecificProfile>
         <option name="formatter" value="ECLIPSE" />
-        <option name="pathToConfigFileJava" value="$PROJECT_DIR$/../../../../eui.xml" />
+        <option name="pathToConfigFileJava" value="$USER_HOME$/eui.xml" />
         <option name="selectedJavaProfile" value="EUI" />
       </ProjectSpecificProfile>
     </option>
@@ -13,7 +13,7 @@
         <option name="formatter" value="ECLIPSE" />
         <option name="id" value="1565435355963" />
         <option name="name" value="EUI" />
-        <option name="pathToConfigFileJava" value="$PROJECT_DIR$/../../../../eui.xml" />
+        <option name="pathToConfigFileJava" value="$PROJECT_DIR$/../../../eui.xml" />
         <option name="selectedJavaProfile" value="EUI" />
       </Settings>
     </option>
